@@ -1,19 +1,30 @@
 from tkinter import *
 from tkinter.ttk import *
 import random
+import time
+import csv
+
+# Initialize the log file
+log_filename = 'selection_log.csv'
+with open(log_filename, 'w', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerow(["Name", "Condition", "Target Character", "Block Count", "Time Taken (ms)"])
+
 
 # Function to append character to the label
 def append(char):
     current_text = label_var.get()
     label_var.set(current_text + char)
 
+
 # Function to clear the label
 def clear_text():
     label_var.set("")
 
+
 # Function to start a new block of targets
 def start_new_block():
-    global current_block, block_count
+    global current_block, block_count, target_start_time
     if block_count > 0:
         current_block = list(target_letters)
         random.shuffle(current_block)
@@ -22,19 +33,38 @@ def start_new_block():
     else:
         label_var.set("Completed!")
         target_var.set("")
+        target_start_time = None
+
 
 # Function to set the next target letter
 def next_target():
+    global target_start_time
     if current_block:
         target_var.set(current_block.pop())
+        target_start_time = time.time()  # Start timing for the next target
     else:
         start_new_block()
+
 
 # Function to handle button press
 def button_press(char):
     if char == target_var.get():
+        # Calculate time taken in milliseconds and round to 1 dp
+        time_taken = round((time.time() - target_start_time) * 1000, 1)
+        log_selection(char, time_taken)
         append(char)
         next_target()
+
+
+# Function to log the selection
+def log_selection(char, time_taken):
+    global block_count
+    name = "User"  # Replace with the actual user's name
+    condition = "static"
+    with open(log_filename, 'a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([name, condition, char, block_count, time_taken])
+
 
 # Create the main window (root window) for the GUI application
 window = Tk()
@@ -45,8 +75,9 @@ board = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm']
 
 # Create variables to hold the target letters and blocks
 target_letters = 'abcdef'
-block_count = 3  # lower number for development, change to 6 for actual use
+block_count = 3  # Set a lower number for development, change to 6 for actual use
 current_block = []
+target_start_time = None
 
 # Create a StringVar to hold the text for the label
 label_var = StringVar()
@@ -69,6 +100,7 @@ clear_button.grid(row=1, column=10, sticky="e", padx=5, pady=5)
 frame = Frame(window, borderwidth=4, relief=RIDGE)
 frame.grid(row=1, column=0, columnspan=10, padx=5, pady=5)
 
+
 # Center-aligning the content in the frame
 def center_align_buttons(board, frame):
     max_len = max(len(row) for row in board)
@@ -87,6 +119,7 @@ def center_align_buttons(board, frame):
             # Place the button inside the frame
             button = Button(button_frame, text=ch, command=lambda x=ch: button_press(x))
             button.pack(fill=BOTH, expand=1)
+
 
 center_align_buttons(board, frame)
 
