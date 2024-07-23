@@ -41,9 +41,16 @@ def center_align_buttons(board, frame):
         row_frame.grid(row=row_index, column=0, columnspan=11)
         row_frame.grid_columnconfigure(0, weight=1)
         row_frame.grid_columnconfigure(max_len + 1, weight=1)
+
         for col_index, ch in enumerate(row):
-            button = Button(row_frame, text=ch, command=lambda x=ch: append(x), width=3)
-            button.grid(row=0, column=col_index + 1, padx=1, pady=1)
+            # Create a frame for each button to set its size to 64x64 pixels
+            button_frame = Frame(row_frame, width=64, height=64)
+            # Prevent the frame from shrinking
+            button_frame.pack_propagate(0)
+            button_frame.grid(row=0, column=col_index + 1, padx=1, pady=1)
+            # Place the button inside the frame
+            button = Button(button_frame, text=ch, command=lambda x=ch: append(x))
+            button.pack(fill=BOTH, expand=1)
 
 center_align_buttons(board, frame)
 
