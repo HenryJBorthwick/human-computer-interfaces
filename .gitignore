@@ -148,3 +148,5 @@ poetry.lock
 venv/
 env/
 /lab2/selection_log.csv
+/lab2/experiment_dynamic_log.txt
+/lab2/experiment_static_log.txt
