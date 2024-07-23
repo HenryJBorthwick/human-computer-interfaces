@@ -147,3 +147,4 @@ poetry.lock
 # venv folders
 venv/
 env/
+/lab2/selection_log.csv
