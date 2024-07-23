@@ -4,11 +4,13 @@ import random
 import time
 import csv
 
-# Initialize the log file based on the mode
-mode = 'static'
-# mode = 'dynamic'
+# Calibration settings
+MODE = 'dynamic'  # Change to 'static' or 'dynamic' mode
+NUMBER_OF_BLOCKS = 6  # Number of blocks to complete
+NUMBER_OF_LETTERS = 6  # Number of letters per block
 
-log_filename = f'experiment_{mode}_log.txt'
+# Initialize the log file based on the mode
+log_filename = f'experiment_{MODE}_log.txt'
 with open(log_filename, 'w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(["User Name", "Condition", "Target Character", "Block Count", "Time Taken (ms)"])
@@ -29,8 +31,7 @@ def clear_text():
 def start_new_block():
     global current_block, block_count, target_start_time
     if block_count > 0:
-        current_block = list(target_letters)
-        random.shuffle(current_block)
+        current_block = blocks[block_count - 1].copy()
         block_count -= 1
         next_target()
     else:
@@ -44,7 +45,8 @@ def next_target():
     global target_start_time
     if current_block:
         target_var.set(current_block.pop())
-        target_start_time = time.time()  # Start timing for the next target
+        # Start timing for the next target
+        target_start_time = time.time()
     else:
         start_new_block()
 
@@ -58,15 +60,16 @@ def button_press(char):
         append(char)
         next_target()
         # Makes keyboard change after each correct selection
-        if mode == 'dynamic':
+        if MODE == 'dynamic':
             randomize_keyboard()
 
 
 # Function to log the selection
 def log_selection(char, time_taken):
     global block_count
-    name = "User"  # Replace with the actual user's name
-    condition = mode
+    # Replace with the actual user's name
+    name = "User"
+    condition = MODE
     with open(log_filename, 'a', newline='') as file:
         writer = csv.writer(file)
         writer.writerow([name, condition, char, block_count, time_taken])
@@ -81,6 +84,22 @@ def randomize_keyboard():
     center_align_buttons(keys, frame)
 
 
+# Function to create the target set and blocks of shuffled target set
+def create_target_set():
+    global target_letters, blocks, block_count
+
+    # Number of letters per block
+    target_letters = random.sample('abcdefghijklmnopqrstuvwxyz', NUMBER_OF_LETTERS)
+    blocks = []
+
+    # Number of blocks to complete
+    for _ in range(NUMBER_OF_BLOCKS):
+        block = target_letters.copy()
+        random.shuffle(block)
+        blocks.append(block)
+    block_count = len(blocks)
+
+
 # Create the main window (root window) for the GUI application
 window = Tk()
 window.title("Keyboard GUI")
@@ -92,8 +111,9 @@ board = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm']
 keys = [list(row) for row in board]
 
 # Create variables to hold the target letters and blocks
-target_letters = 'abcdef'
-block_count = 1  # Set a lower number for development, change to 6 for actual use
+target_letters = []
+blocks = []
+block_count = 0
 current_block = []
 target_start_time = None
 
@@ -139,6 +159,9 @@ def center_align_buttons(keys, frame):
 
 # Randomize the keyboard layout initially
 randomize_keyboard()
+
+# Create the target set
+create_target_set()
 
 # Make sure the window is resizable and the content scales properly
 for i in range(11):
