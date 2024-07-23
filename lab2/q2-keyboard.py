@@ -5,22 +5,25 @@ import time
 import csv
 
 # Initialize the log file based on the mode
-# mode = 'static'
-mode = 'dynamic'
+mode = 'static'
+# mode = 'dynamic'
 
 log_filename = f'experiment_{mode}_log.txt'
 with open(log_filename, 'w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(["User Name", "Condition", "Target Character", "Block Count", "Time Taken (ms)"])
 
+
 # Function to append character to the label
 def append(char):
     current_text = label_var.get()
     label_var.set(current_text + char)
 
+
 # Function to clear the label
 def clear_text():
     label_var.set("")
+
 
 # Function to start a new block of targets
 def start_new_block():
@@ -35,6 +38,7 @@ def start_new_block():
         target_var.set("")
         target_start_time = None
 
+
 # Function to set the next target letter
 def next_target():
     global target_start_time
@@ -43,6 +47,7 @@ def next_target():
         target_start_time = time.time()  # Start timing for the next target
     else:
         start_new_block()
+
 
 # Function to handle button press
 def button_press(char):
@@ -56,6 +61,7 @@ def button_press(char):
         if mode == 'dynamic':
             randomize_keyboard()
 
+
 # Function to log the selection
 def log_selection(char, time_taken):
     global block_count
@@ -65,12 +71,15 @@ def log_selection(char, time_taken):
         writer = csv.writer(file)
         writer.writerow([name, condition, char, block_count, time_taken])
 
+
 # Function to randomize the keyboard layout
 def randomize_keyboard():
-    random.shuffle(keys)
+    for row in keys:
+        random.shuffle(row)
     for widget in frame.winfo_children():
         widget.destroy()
     center_align_buttons(keys, frame)
+
 
 # Create the main window (root window) for the GUI application
 window = Tk()
@@ -79,8 +88,8 @@ window.title("Keyboard GUI")
 # Define the content of the keyboard
 board = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm']
 
-# Flatten the board to a single list of keys
-keys = [char for row in board for char in row]
+# Convert the board into a list of lists of keys for each row
+keys = [list(row) for row in board]
 
 # Create variables to hold the target letters and blocks
 target_letters = 'abcdef'
@@ -109,18 +118,14 @@ clear_button.grid(row=1, column=10, sticky="e", padx=5, pady=5)
 frame = Frame(window, borderwidth=4, relief=RIDGE)
 frame.grid(row=1, column=0, columnspan=10, padx=5, pady=5)
 
+
 # Center-aligning the content in the frame
 def center_align_buttons(keys, frame):
-    # Use the shuffelded keys list
-    rows = [keys[i:i + 10] for i in range(0, len(keys), 10)]
-
-    for row_index, row in enumerate(rows):
+    for row_index, row in enumerate(keys):
         row_frame = Frame(frame)
-        row_frame.grid(row=row_index, column=0, columnspan=11)
+        row_frame.grid(row=row_index, column=0, columnspan=10)
         row_frame.grid_columnconfigure(0, weight=1)
         row_frame.grid_columnconfigure(len(row) + 1, weight=1)
-
-
         for col_index, ch in enumerate(row):
             # Create a frame for each button to set its size to 64x64 pixels
             button_frame = Frame(row_frame, width=64, height=64)
@@ -130,6 +135,7 @@ def center_align_buttons(keys, frame):
             # Place the button inside the frame
             button = Button(button_frame, text=ch, command=lambda x=ch: button_press(x))
             button.pack(fill=BOTH, expand=1)
+
 
 # Randomize the keyboard layout initially
 randomize_keyboard()
