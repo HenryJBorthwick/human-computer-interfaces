@@ -128,7 +128,7 @@ if __name__ == '__main__':
     # Number of different widths of the bars to do
     widths = [8, 16, 32]
     # Number of times click between bars
-    repetitions = 2
+    repetitions = 8
     participant_name = 'Participant1'  # Change as needed
 
     root = tk.Tk()
