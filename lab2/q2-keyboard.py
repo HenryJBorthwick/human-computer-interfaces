@@ -5,7 +5,7 @@ import time
 import csv
 
 # Calibration settings
-MODE = 'dynamic'  # Change to 'static' or 'dynamic' mode
+MODE = 'static'  # Change to 'static' or 'dynamic' mode
 NUMBER_OF_BLOCKS = 6  # Number of blocks to complete
 NUMBER_OF_LETTERS = 6  # Number of letters per block
 
